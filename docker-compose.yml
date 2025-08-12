@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  pr-agent:
+    image: codiumai/pr-agent:github_app
+    container_name: pr-agent-app
+    network_mode: host
+    environment:
+      - "HTTP_PROXY=http://172.22.0.4:7897"
+      - "HTTPS_PROXY=http://172.22.0.4:7897"
+      - "NO_PROXY=localhost,127.0.0.1"
+      - "GOOGLE_APPLICATION_CREDENTIALS=/app/.config/gcloud/application_default_credentials.json"
+    # ports:
+      # - "3000:3000"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./pr_agent/settings/configuration.toml:/app/pr_agent/settings/configuration.toml
+      - ./pr_agent/settings/.secrets.toml:/app/pr_agent/settings/.secrets.toml
+      - $HOME/.config/gcloud/application_default_credentials.json:/app/.config/gcloud/application_default_credentials.json:ro
+    restart: unless-stopped 
+  caddy:
+      image: caddy:latest
+      # 必须要使用 host 模式，因为反向代理不仅仅是本地主机，还有局域网其他服务器
+      network_mode: host
+      restart: unless-stopped
+      # extra_hosts:
+      #   - "host.docker.internal:host-gateway"
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./Caddyfile:/etc/caddy/Caddyfile
+        - ./app/site:/srv
+        - ./app/data:/data
+        - ./app/config:/config

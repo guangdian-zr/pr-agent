@@ -1,0 +1,8 @@
+
+http://pragent.ziranai.cn {
+        redir https://{host}{uri} permanent
+}
+
+https://pragent.ziranai.cn {
+        reverse_proxy localhost:3000
+}

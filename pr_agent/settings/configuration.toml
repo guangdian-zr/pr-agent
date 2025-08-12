@@ -30,7 +30,7 @@ response_language="en-US" # Language locales code for PR responses in ISO 3166 a
 # token limits
 max_description_tokens = 500
 max_commits_tokens = 500
-max_model_tokens = 32000 # Limits the maximum number of tokens that can be used by any model, regardless of the model's default capabilities.
+max_model_tokens = 200000 # Limits the maximum number of tokens that can be used by any model, regardless of the model's default capabilities. Set to 200K for Claude 4.
 custom_model_max_tokens=-1 # for models not in the default list
 model_token_count_estimate_factor=0.3 # factor to increase the token count estimate, in order to reduce likelihood of model failure due to too many tokens - applicable only when requesting an accurate estimate.
 # patch extension logic
@@ -56,7 +56,6 @@ ignore_pr_source_branches = [] # a list of regular expressions of source branche
 ignore_pr_labels = [] # labels to ignore from PR agent when an PR is created
 ignore_pr_authors = [] # authors to ignore from PR agent when an PR is created
 ignore_repositories = [] # a list of regular expressions of repository full names (e.g. "org/repo") to ignore from PR agent processing
-ignore_language_framework = [] # a list of code-generation languages or frameworks (e.g. 'protobuf', 'go_gen') whose auto-generated source files will be excluded from analysis
 #
 is_auto_command = false # will be auto-set to true if the command is triggered by an automation
 enable_ai_metadata = false # will enable adding ai metadata
@@ -74,7 +73,7 @@ extended_thinking_max_output_tokens = 4096
 
 [pr_reviewer] # /review #
 # enable/disable features
-require_score_review=false
+require_score_review=true
 require_tests_review=true
 require_estimate_effort_to_review=true
 require_can_be_split_review=false
@@ -106,8 +105,8 @@ extra_instructions = ""
 enable_pr_type=true
 final_update_message = true
 enable_help_text=false
-enable_help_comment=false
-enable_pr_diagram=true # adds a section with a diagram of the PR changes
+enable_help_comment=true
+enable_pr_diagram=false # adds a section with a diagram of the PR changes
 # describe as comment
 publish_description_as_comment=false
 publish_description_as_comment_persistent=true
@@ -152,8 +151,7 @@ new_score_mechanism_th_high=9
 new_score_mechanism_th_medium=7
 # params for '/improve --extended' mode
 auto_extended_mode=true
-num_code_suggestions_per_chunk=3
-num_best_practice_suggestions=1 # 💎
+num_code_suggestions_per_chunk=4
 max_number_of_calls = 3
 parallel_calls = true
 
@@ -235,13 +233,14 @@ enable_help_text=false
 
 [github]
 # The type of deployment to create. Valid values are 'app' or 'user'.
-deployment_type = "user"
+deployment_type = "app"
 ratelimit_retries = 5
 base_url = "https://api.github.com"
 publish_inline_comments_fallback_with_verification = true
 try_fix_invalid_inline_comments = true
 app_name = "pr-agent"
 ignore_bot_pr = true
+
 
 [github_action_config]
 # auto_review = true    # set as env var in .github/workflows/pr-agent.yaml
@@ -252,9 +251,14 @@ ignore_bot_pr = true
 [github_app]
 # these toggles allows running the github app from custom deployments
 bot_user = "github-actions[bot]"
-override_deployment_type = true
+override_deployment_type = false
 # settings for "pull_request" event
 handle_pr_actions = ['opened', 'reopened', 'ready_for_review']
+# pr_commands = [
+#     "/describe --pr_description.final_update_message=false",
+#     "/review",
+#     "/improve",
+# ]
 pr_commands = [
     "/describe --pr_description.final_update_message=false",
     "/review",
